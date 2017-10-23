@@ -89,7 +89,12 @@ void printTree(TreeNode *root)
 
 void releaseTree(TreeNode *root)
 {
-  // TODO
+  if(!root)
+    return;
+  releaseTree(root->left);
+  releaseTree(root->right);
+  /*cout << "release: " << root->val << endl;*/
+  delete root;
 }
 
 
