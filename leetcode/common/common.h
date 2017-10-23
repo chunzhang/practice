@@ -1,32 +1,50 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <set>
 #include <map>
 #include <algorithm>
+#include <numeric>
+#include <unordered_set>
+#include <unordered_map>
 
-using namespace std;
+//xxx using namespace std;
 
+/* BST */
+struct TreeNode {
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+TreeNode* makeTree(int argc, char *argv[]);
+void printTree(TreeNode *root);
+void releaseTree(TreeNode *root);
+
+/* List */
+
+
+/* Array */
 template<class T>
-void printVector(const vector<T> &vec)
+void printVector(const std::vector<T> &vec)
 {
   for(auto e : vec)
-    cout << e << " ";
-  cout << endl;
+    std::cout << e << " ";
+  std::cout << std::endl;
 }
 
 template<class T>
-void printMatrix(const vector<vector<T>> &matrix)
+void printMatrix(const std::vector<std::vector<T>> &matrix)
 {
   for(auto vec : matrix)
     printVector(vec);
 }
 
-vector<int> readVector(int argc, char *argv[])
-{
-  vector<int> vec(argc-1, 0);
-  for(int i=1; i<argc; ++i)
-    vec[i-1] = atoi(argv[i]);
+std::vector<int> readVector(int argc, char *argv[]);
 
-  return vec;
-}
+#endif
