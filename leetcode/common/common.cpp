@@ -5,6 +5,32 @@
 
 using namespace std;
 
+vector<Interval> makeIntervals(int argc, char *argv[])
+{
+  vector<int> nums = readVector(argc, argv);
+  vector<Interval> intervals;
+  for(int i=0; i+1<nums.size(); i+=2) {
+    Interval interval(nums[i], nums[i+1]);
+    if(interval.start > interval.end)
+      continue;
+    intervals.push_back(interval);
+  }
+
+  return intervals;
+}
+
+void printIntervals(const std::vector<Interval> &intervals)
+{
+  for(int i=0; i<intervals.size(); ++i)
+    cout << intervals[i] << (i==intervals.size()-1 ? "\n" : ", ");
+}
+
+ostream& operator <<(ostream &os, const Interval &interval)
+{
+  os << "[" << interval.start << ", " << interval.end << "]";
+  return os;
+}
+
 // Convert [1,null,2,3] to BST
 TreeNode* makeTree(int argc, char *argv[])
 {
