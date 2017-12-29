@@ -82,29 +82,28 @@ public:
 
 };
 
-// Solution based on height-map
-// https://briangordon.github.io/2014/08/the-skyline-problem.html
+// Solution based on height-map: https://briangordon.github.io/2014/08/the-skyline-problem.html
+// -- currently this is O(N^2) complexity, how to improve it?
 class Solution {
 public:
   vector<pair<int, int>> getSkyline(vector<vector<int>>& buildings) {
     vector<pair<int, int>> points;
-    vector<int> hmap(10001, 0);
-    set<int> edges;
+    map<int, int> hmap;  // height-map: we need heights for building start/end points only
     for(const auto &building : buildings) {
-      edges.insert(building[0]);
-      edges.insert(building[1]);
+      hmap[building[0]] = 0;
+      hmap[building[1]] = 0;
     }
 
     for(const auto &building : buildings) {  // for each rectangle
-      for(int edge : edges) {
-	if(edge>=building[0] && edge<building[1])  // not including right boundary since this is the falling edge
-	  hmap[edge] = max(hmap[edge], building[2]);
+      for(auto it=hmap.begin(); it!=hmap.end(); ++it) {
+	if(it->first>=building[0] && it->first<building[1])
+	  it->second = max(it->second, building[2]);
       }
     }
-
-    for(int edge : edges) {
-      if(points.empty() || points.back().second!=hmap[edge])
-	points.push_back({edge, hmap[edge]});
+      
+    for(const auto &h : hmap) {
+      if(points.empty() || points.back().second!=h.second)
+	points.push_back({h.first, h.second});
     }
 
     return points;
