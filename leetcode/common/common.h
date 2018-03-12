@@ -43,11 +43,19 @@ void releaseTree(TreeNode *root);
 
 /* List */
 
-
 /* Array */
-template<class T>
-void printVector(const std::vector<T> &vec)
+template<class T1, class T2>
+  std::ostream& operator<< (std::ostream &os, const std::pair<T1, T2> obj)
 {
+  os << "(" << obj.first << "," << obj.second << ")";
+  return os;
+}
+
+template<class T>
+void printVector(const std::vector<T> &vec, const std::string title="")
+{
+  if(!title.empty())
+    std::cout << title << ": ";
   for(auto e : vec)
     std::cout << e << " ";
   std::cout << std::endl;
