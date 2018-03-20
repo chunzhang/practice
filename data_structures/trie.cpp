@@ -127,7 +127,7 @@ private:
     else {
       if(cur->_isEnd)
 	res.push_back(s);
-      for(int i=0; i<25; ++i) {
+      for(int i=0; i<26; ++i) {
 	TrieNode *next = cur->_kids[i];
 	if(next) {
 	  s.push_back('a'+i);
