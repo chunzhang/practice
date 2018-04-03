@@ -27,6 +27,33 @@ public:
   }
 };
 
+// iterative solution based on simulating recursion
+class Solution3 {
+public:
+    double myPow(double x, int n) {
+        long long ln = n;
+        if(ln < 0) {
+            ln = -ln;
+            x = 1/x;
+        }
+        
+        stack<long long> s;
+        while(ln > 0) {
+            s.push(ln);
+            ln /= 2;
+        }
+        double ans = 1.0;
+        while(!s.empty()) {
+            long long cur = s.top();
+            s.pop();
+            ans *= ans;
+            if(cur % 2)
+                ans *= x;
+        }
+        return ans;
+    }
+};
+
 // recursive approach
 class Solution2 {
 public:
