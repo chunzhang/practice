@@ -180,6 +180,46 @@ public:
 };
 
 
+// Simple DFS solution using stringstream
+class Codec3 {
+public:
+
+  // Encodes a tree to a single string.
+  string serialize(TreeNode* root) {
+    ostringstream oss;
+    serializeDFS(root, oss);
+    return oss.str();
+  }
+
+  // Decodes your encoded data to tree.
+  TreeNode* deserialize(string data) {
+    istringstream iss(data);
+    return deserializeDFS(iss);
+  }
+    
+private:
+  void serializeDFS(TreeNode *root, ostringstream &oss) {
+    if(!root) {
+      oss << "null ";
+      return;
+    }
+    oss << root->val << " ";
+    serializeDFS(root->left, oss);
+    serializeDFS(root->right, oss);
+  }
+    
+  TreeNode *deserializeDFS(istringstream &iss) {
+    string val;
+    iss >> val;
+    if(val == "null")
+      return nullptr;
+    TreeNode *root = new TreeNode(stoi(val));
+    root->left = deserializeDFS(iss);
+    root->right = deserializeDFS(iss);
+    return root;
+  }
+};
+
 // Your Codec object will be instantiated and called as such:
 // Codec codec;
 // codec.deserialize(codec.serialize(root));
