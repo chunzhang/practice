@@ -15,7 +15,7 @@
 #include <list>
 #include <stack>
 
-//xxx using namespace std;
+using namespace std;
 
 struct Interval
 {
