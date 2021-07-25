@@ -14,5 +14,5 @@ int binary_search(int l, int r, func f, func g)
             l = m+1;
     }
 
-    return l;  // index of first element that satisfy g(m), or return -1 if we need to find exact match
+    return l;  // index of first element that satisfy g(m), or r if no such element exists
 }

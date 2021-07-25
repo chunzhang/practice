@@ -14,7 +14,7 @@ using namespace std;
 class Solution {
 public:
   bool hasPathSum(TreeNode* root, int sum) {
-    if(!root)
+    if(!root)  // Note empty node does not become a valid path, so it should return False
       return false;
 
     if(!root->left && !root->right)
