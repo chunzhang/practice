@@ -107,3 +107,78 @@ public:
         return -1;
     }
 };
+
+// DP solution for reference -- 1
+// Author: Huahua, 16 ms, 12.1MB
+class Solution {
+public:
+  int minimumMoves(vector<vector<int>>& grid) {
+    constexpr int kInf = 1e9;
+    const int n = grid.size();
+    vector<vector<pair<int, int>>> dp(n + 1, 
+                                      vector<pair<int, int>>(n + 1, {kInf, kInf}));
+    dp[0][1].first = dp[1][0].first = -1;
+    for (int i = 1; i <= n; ++i)
+      for (int j = 1; j <= n; ++j) {
+        bool h = false;
+        bool v = false;
+        if (!grid[i - 1][j - 1] && j < n && !grid[i - 1][j]) {
+          dp[i][j].first = min(dp[i - 1][j].first, dp[i][j - 1].first) + 1;
+          h = true;          
+        }
+        if (!grid[i - 1][j - 1] && i < n && !grid[i][j - 1]) {
+          dp[i][j].second = min(dp[i - 1][j].second, dp[i][j - 1].second) + 1;
+          v = true;          
+        }
+        if (v && j < n && !grid[i][j])
+            dp[i][j].second = min(dp[i][j].second, dp[i][j].first + 1);
+        if (h && i < n && !grid[i][j])
+            dp[i][j].first = min(dp[i][j].first, dp[i][j].second + 1);        
+      }      
+    return dp[n][n - 1].first >= kInf ? -1 : dp[n][n - 1].first;
+  }
+};
+
+// DP solution for reference -- 2
+/*
+  The idea is to create two DP arrays representing two different snake states at each grid point (lying horizontally or vertically) and then update these two DP arrays diagonally from top-left (i+j=0) to bottom-right (i+j = 2n-2). Space and time complexity is O(n^2).
+*/
+class Solution {
+public:
+    int minimumMoves(vector<vector<int>>& grid) {
+        int n = grid.size();
+        vector<vector<int>> dph(n, vector<int>(n, INT_MAX/2)); //min moves to reach state with snake head at (i,j) and snake tail at (i,j-1) (ie, a snake lying horizontally)
+        vector<vector<int>> dpv = dph; //min moves to reach state with snake head at (i,j) and snake tail at (i-1,j) (ie, a snake lying vertically)
+        //0. init
+        dph[0][1] = 0;
+        if(!grid[1][0] && !grid[1][1]) dpv[1][0] = 1;
+        for(int k = 2; k <= 2*n-2; k++){ //k is the wavefront, k = i+j
+            int i_start = max(0, k - n + 1);
+            int i_end = min(k, n-1);
+            //1. first update dph[i][j] and dpv[i][j] (i+j == k) based on horizonal or vertical shifts, using dp[i'][j'] where i'+j'==k-1
+            for(int i = i_start; i <= i_end; i++){
+                int j = k - i;
+                if(grid[i][j]) continue;
+                //1.1. update dph
+                if(j>0 && !grid[i][j-1]){
+                    dph[i][j] = dph[i][j-1] + 1; //horizontal shift (right)
+                    if(i>0) dph[i][j] = min(dph[i][j], dph[i-1][j] + 1); //vertical shift (down)
+                }
+                //1.2. update dpv
+                if(i>0 && !grid[i-1][j]){
+                    dpv[i][j] = dpv[i-1][j] + 1; //vertical shift (down)
+                    if(j>0) dpv[i][j] = min(dpv[i][j], dpv[i][j-1] + 1); //horizontal shift (right)
+                }
+            }
+            //2. Then update dph[i][j] and dpv[i][j] (i+j == k) based on rotations, using dp[i'][j'] where i'+j'==k (ie, same wavefronts)
+            for(int i = i_start; i <= i_end; i++){
+                int j = k - i;
+                if(grid[i][j]) continue;
+                if(j>0 && !grid[i][j-1] && i<n-1 && !grid[i+1][j]) dph[i][j] = min(dph[i][j], dpv[i+1][j-1] + 1);
+                if(i>0 && !grid[i-1][j] && j<n-1 && !grid[i][j+1]) dpv[i][j] = min(dpv[i][j], dph[i-1][j+1] + 1);
+            }
+        }
+        if(dph[n-1][n-1] >= INT_MAX/2) return -1;
+        else return dph[n-1][n-1];
+    }
+};
