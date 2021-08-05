@@ -26,6 +26,26 @@ Constraints:
 0 <= prices[i] <= 10^4
 */
 
+// DP: dp[i] being the max profit until day-i
+// -- dp[i] = max(dp[i-1], prices[i]-minPrice), where minPrice is the minimal price before day-i
+// -- can be reduced to O(1) space
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        // DP with O(1) space
+        int dp = 0;
+        int minPrice = INT_MAX;  // min price before day-i
+        for(int p : prices) {
+            dp = max(dp, p-minPrice/*sell at current day*/);
+            minPrice = min(minPrice, p);
+        }
+        
+        return dp;
+    }
+};
+
+
+
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {

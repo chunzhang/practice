@@ -1,28 +1,28 @@
 /*
-You are given an array prices where prices[i] is the price of a given stock on the ith day.
+  You are given an array prices where prices[i] is the price of a given stock on the ith day.
 
-Find the maximum profit you can achieve. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
+  Find the maximum profit you can achieve. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
 
-After you sell your stock, you cannot buy stock on the next day (i.e., cooldown one day).
-Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+  After you sell your stock, you cannot buy stock on the next day (i.e., cooldown one day).
+  Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
 
  
 
-Example 1:
+  Example 1:
 
-Input: prices = [1,2,3,0,2]
-Output: 3
-Explanation: transactions = [buy, sell, cooldown, buy, sell]
-Example 2:
+  Input: prices = [1,2,3,0,2]
+  Output: 3
+  Explanation: transactions = [buy, sell, cooldown, buy, sell]
+  Example 2:
 
-Input: prices = [1]
-Output: 0
+  Input: prices = [1]
+  Output: 0
  
 
-Constraints:
+  Constraints:
 
-1 <= prices.length <= 5000
-0 <= prices[i] <= 1000
+  1 <= prices.length <= 5000
+  0 <= prices[i] <= 1000
 */
 
 class Solution {
@@ -55,4 +55,29 @@ public:
         
         return max(rest, sold);  // doesn't make sense to hold any stock at last
     }
+};
+
+
+// Another O(N^2) DP solution for reference (in Java)
+class Solution {
+  public int maxProfit(int[] prices) {
+      //The function MP(i) gives the maximal profits that we can gain for the price subsequence starting from the index i, i.e. prices[i, i+1, ..., n]
+      int[] MP = new int[prices.length + 2];
+
+      for (int i = prices.length - 1; i >= 0; i--) {
+          int C1 = 0;
+          // Case 1). buy and sell the stock
+          for (int sell = i + 1; sell < prices.length; sell++) {
+              int profit = (prices[sell] - prices[i]) + MP[sell + 2];
+              C1 = Math.max(profit, C1);
+          }
+
+          // Case 2). do no transaction with the stock p[i]
+          int C2 = MP[i + 1];
+
+          // wrap up the two cases
+          MP[i] = Math.max(C1, C2);
+      }
+      return MP[0];
+  }
 };
