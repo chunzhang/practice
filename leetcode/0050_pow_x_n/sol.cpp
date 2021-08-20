@@ -5,27 +5,30 @@ using namespace std;
 // iterative approach
 class Solution {
 public:
-  double myPow(double x, int n) {
-    long long ln = n;  // in case of overflow
-    if(ln < 0) {
-      x = 1/x;
-      ln = -ln;
+    double myPow(double x, int n) {
+        long ln = n;  // to avoid overflow when we get -INT_MIN
+        if(ln < 0) {
+            x = 1/x;
+            ln = -ln;
+        }
+        
+        
+        // n can be represented in binary format. Let's say n=101, which is n=2'b101
+        // ==> x^n = x^(2'b101) = x^(2'b100+2'b001) = x^(2'b100) * x^(2'b001)
+        // ==> by keeping track of base, and multiply the result with base when LSB is 1, we can get the answer
+        double ans = 1;
+        double base = x;
+        while(ln) {
+            if(ln & 0x1)  // LSB is 1, need to multiply base
+                ans *= base;
+            base *= base;
+            ln /= 2;
+        }
+        
+        return ans;
     }
-
-    // Say n = 2'b101, it can be decomposed as (2'b100 + 2'b001). In fact,
-    // 2'b100==>x^4, 2'b001==>x^1, and this can be the interpreation of the
-    // following iterative approach
-    double ans = 1;
-    while(ln) {
-      if(ln % 2)
-	ans *= x;
-      x *= x;
-      ln /= 2;
-    }
-
-    return ans;
-  }
 };
+
 
 // iterative solution based on simulating recursion
 class Solution3 {
