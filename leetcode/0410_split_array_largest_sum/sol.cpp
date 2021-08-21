@@ -60,9 +60,9 @@ public:
 class Solution {
 public:
     int splitArray(vector<int>& nums, int m) {
-        // binary search
+        // binary search in [l,r) range
         int l = *max_element(nums.begin(), nums.end());
-        int r = accumulate(nums.begin(), nums.end(), 0);
+        int r = accumulate(nums.begin(), nums.end(), 0) + 1;
         while(l<r) {
             int mid = l+(r-l)/2;
             if(g(nums, m, mid))
