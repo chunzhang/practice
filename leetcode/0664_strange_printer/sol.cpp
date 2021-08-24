@@ -69,3 +69,34 @@ private:
     }
     
 };
+
+
+// DP bottom-up by iterating substring length
+class Solution {
+public:
+    int strangePrinter(string s) {
+        // 1. collapse string
+        int len = 1;
+        for(int i=1; i<s.size(); ++i)
+            if(s[i]!=s[i-1])
+                s[len++] = s[i];
+        s.resize(len);
+        const int N = s.size();
+        
+        // dp(i,j): min turns in s[i:j]
+        vector<vector<int>> dp(N, vector<int>(N,0));
+        for(int i=0; i<N; ++i)
+            dp[i][i] = 1;
+        for(int len=2; len<=N; ++len) {
+            for(int i=0,j=len-1; j<N; ++i,++j) {
+                dp[i][j] = dp[i][j-1] + 1;  // base case
+                for(int k=i; k<j; ++k)
+                    if(s[k] == s[j])  // s[j] can be computed along with s[i:k] since s[j]==s[k]
+                        dp[i][j] = min(dp[i][j], dp[i][k]+dp[k+1][j-1]);
+            }
+        }
+        
+        return dp[0][N-1];
+    }
+    
+};
