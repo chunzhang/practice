@@ -36,6 +36,8 @@ Constraints:
 1 <= n <= 16
 */
 
+// DFS O(N*2^N) time complexity
+// recursive depth is 2^N, and at each recursion, need O(N) to flip each bit
 class Solution {
 public:
     vector<int> grayCode(int n) {
