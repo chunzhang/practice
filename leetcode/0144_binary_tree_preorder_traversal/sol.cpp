@@ -14,32 +14,32 @@ using namespace std;
  */
 class Solution {
 public:
-  vector<int> preorderTraversal(TreeNode* root) {
-    vector<int> res;
-    if(!root)
-      return res;
-    stack<TreeNode*> s;
-    s.push(root);
-    while(!s.empty()) {
-      TreeNode *pCur = s.top();
-      s.pop();
-      res.push_back(pCur->val);
-      if(pCur->right)
-	s.push(pCur->right);
-      if(pCur->left)
-	s.push(pCur->left);
-    }
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        if(!root)
+            return res;
+        stack<TreeNode*> s;
+        s.push(root);
+        while(!s.empty()) {
+            TreeNode *pCur = s.top();
+            s.pop();
+            res.push_back(pCur->val);
+            if(pCur->right)
+                s.push(pCur->right);
+            if(pCur->left)
+                s.push(pCur->left);
+        }
 
-    return res;
-  }
+        return res;
+    }
 };
 
 int main(int argc, char *argv[])
 {
-  TreeNode *root = makeTree(argc, argv);
-  Solution sol;
-  auto res = sol.preorderTraversal(root);
-  printVector(res);
+    TreeNode *root = makeTree(argc, argv);
+    Solution sol;
+    auto res = sol.preorderTraversal(root);
+    printVector(res);
 
-  return 0;
+    return 0;
 }
