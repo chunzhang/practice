@@ -36,6 +36,8 @@ Follow up: Could you solve it both recursively and iteratively?
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+
+// DFS
 class Solution {
 public:
     bool isSymmetric(TreeNode* root) {
@@ -55,8 +57,39 @@ public:
 };
 
 
+// Iterative
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        // iterative approach
+        // two BFS, one from left to right, and another from right to left
+        // if the tree is symmetric, then the two BFS result should be same
+        queue<TreeNode*> ql;  // left-->right
+        queue<TreeNode*> qr;  // right-->left
+        ql.push(root);
+        qr.push(root);
+        while(ql.size() || qr.size()) {
+            TreeNode *nl = ql.front();
+            ql.pop();
+            TreeNode *nr = qr.front();
+            qr.pop();
+            if(!nl && !nr)
+                continue;
+            if(!nl || !nr)
+                return false;
+            if(nl->val != nr->val)
+                return false;
+            ql.push(nl->left);
+            ql.push(nl->right);
+            qr.push(nr->right);
+            qr.push(nr->left);
+        }
+        
+        return true;
+    }
+};
 
-// Iterative approach (in Java)
+// Iterative approach reference (in Java)
 public boolean isSymmetric(TreeNode root) {
     Queue<TreeNode> q = new LinkedList<>();
     q.add(root);
