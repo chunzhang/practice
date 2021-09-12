@@ -42,3 +42,24 @@ public:
         return dp2;
     }
 };
+
+
+// Another way of form DP problem, i.e., using states
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        // dp0(i): max benefit of houses [0...i] when i is not robbed
+        // dp1(i): max benefit of houses [0...i] when i is robbed
+        // dp0(i) = max(dp0(i-1), dp1(i-1))
+        // dp1(i) = nums[i] + dp0(i-1)
+        int N = nums.size();
+        vector<int> dp0(N, 0);
+        vector<int> dp1(N, 0);
+        dp1[0] = nums[0];
+        for(int i=1; i<N; ++i) {
+            dp0[i] = max(dp0[i-1], dp1[i-1]);
+            dp1[i] = nums[i] + dp0[i-1];
+        }
+        return max(dp0[N-1], dp1[N-1]);
+    }
+};
