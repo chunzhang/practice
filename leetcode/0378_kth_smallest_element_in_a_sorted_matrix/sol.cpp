@@ -26,30 +26,74 @@ All the rows and columns of matrix are guaranteed to be sorted in non-decreasing
 1 <= k <= n^2
 */
 
-// Solution 1: Binary search
+// binary search: find first element that the matrix has >=k numbers smaller or equal to it
+// time complexity: O(NlgW), where W is the span of max-min value in the matrix
 class Solution {
 public:
     int kthSmallest(vector<vector<int>>& matrix, int k) {
-        int N = matrix.size();
-        
-        // binar search: find first (i.e., smallest) number that satify g(m), where
-        // g(m) is "(total number of matrix elements equal or smaller than m) >= k"
-        int l = matrix[0][0];   // min in matrix
-        int r = matrix[N-1][N-1] + 1;  // max in matrix
+        int l = matrix[0][0];
+        int r = matrix.back().back() + 1;
         while(l < r) {
+            // find first number that the matrix has >=k numbers smaller than it
             int m = l + (r-l)/2;
-            int total = 0;
-            for(auto &vec : matrix) {
-                auto it = upper_bound(vec.begin(), vec.end(), m);
-                total += distance(vec.begin(), it);  // total number of matrix elements that is smaller or equal to m
-            }
-            if(total>=k)
+            int count = countSmallerOrEqual(matrix, m);
+            if(count>=k)
                 r = m;
             else
                 l = m + 1;
         }
         
         return l;
+    }
+    
+private:
+    // count numer of elements in matrix that is smaller or equal to val
+    // O(N)
+    int countSmallerOrEqual(const vector<vector<int>> &matrix, int val) {
+        int count = 0;
+        const int M = matrix.size();
+        const int N = M?matrix[0].size():0;
+        for(int i=M-1,j=0; i>=0&&j<N; ) {
+            if(matrix[i][j] <= val) {
+                count += i+1;
+                ++j;
+            }
+            else
+                --i;
+        }
+        return count;
+    }
+};
+
+
+// binary search: find first element that the matrix has >=k numbers smaller or equal to it
+// time complexity: O(NlgNlgW), where W is the span of max-min value in the matrix
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int l = matrix[0][0];
+        int r = matrix.back().back() + 1;
+        while(l < r) {
+            int m = l + (r-l)/2;
+            int count = countSmallerOrEqual(matrix, m);
+            if(count>=k)
+                r = m;
+            else
+                l = m + 1;
+        }
+        
+        return l;
+    }
+    
+private:
+    // count numer of elements in matrix that is smaller or equal to val
+    // O(NlgN)
+    int countSmallerOrEqual(const vector<vector<int>> &matrix, int val) {
+        int count = 0;
+        for(int i=0; i<matrix.size(); ++i)
+            count += distance(matrix[i].begin(), upper_bound(matrix[i].begin(), matrix[i].end(), val));
+        
+        return count;
     }
 };
 
