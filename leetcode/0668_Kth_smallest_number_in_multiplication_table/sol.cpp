@@ -51,7 +51,12 @@ private:
         if(m > n)
             swap(m,n);
         for(int i=1; i<=m; ++i) {
+            int idx = val/i;
+            if(idx == 0)  // since i monotonically increase, we no longer need to proceed further
+                break;
             count += min(n, val/i);
+
+            // another potential pruning: if count is already >=k, we can exit early also
         }
         return count;
     }

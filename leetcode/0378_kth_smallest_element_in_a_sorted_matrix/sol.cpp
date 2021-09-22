@@ -98,6 +98,7 @@ private:
 };
 
 // Solution 2: Min-heap
+// time complexity: O(X+KlgX), where X=min(K,N) -- O(X) to build heap, and K heap pop/push, each takes O(lgX) time
 // heap node
 struct HeapNode {
     HeapNode(int val, int row, int col) : v(val),r(row),c(col) {}
