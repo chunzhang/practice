@@ -16,3 +16,23 @@ int binary_search(int l, int r, func f, func g)
 
     return l;  // index of first element that satisfy g(m), or r if no such element exists
 }
+
+
+
+// possible [l,r] range template 1
+while(l < r) {
+    int m = l + (r-l)/2;
+    if(some condition)
+        r = m;   // this will not cause infinit loop, since loop ends when l==r
+    else
+        l = m + 1;
+}
+
+// possible [l,4] range template 2
+while(l <= r) {
+    int m = l + (r-l)/2;
+    if(some condition)
+        r = m-1;
+    else
+        r = m+1;
+}
