@@ -87,6 +87,44 @@ private:
 };
 
 
+// BFS w/o using queue
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if(!head)
+            return nullptr;
+
+        // BFS w/o using queue
+        Node *ans = new Node(head->val);
+        _nodes[head] = ans; 
+        while(head) {
+            Node *cloneHead = _nodes[head];
+            
+            if(head->random) {
+                auto it = _nodes.find(head->random);
+                if(it == _nodes.end())
+                    it = _nodes.emplace(head->random, new Node(head->random->val)).first;
+                cloneHead->random = it->second;;
+            }
+            
+            if(head->next) {
+                auto it = _nodes.find(head->next);
+                if(it == _nodes.end())
+                    it = _nodes.emplace(head->next, new Node(head->next->val)).first;
+                cloneHead->next = it->second;
+            }
+            
+            head = head->next;
+        }
+        
+        return ans;
+    }
+    
+private:
+    unordered_map<Node*,Node*> _nodes;
+};
+
+
 // BFS
 // time complexity: O(V+E)
 // space complexity: O(V)
