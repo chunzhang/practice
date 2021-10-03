@@ -1,350 +1,299 @@
 /*
-Equations are given in the format A / B = k, where A and B are variables represented as strings, and k is a real number (floating point number). Given some queries, return the answers. If the answer does not exist, return -1.0.
+  You are given an array of variable pairs equations and an array of real numbers values, where equations[i] = [Ai, Bi] and values[i] represent the equation Ai / Bi = values[i]. Each Ai or Bi is a string that represents a single variable.
 
-Example:
-Given a / b = 2.0, b / c = 3.0. 
-queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ? . 
-return [6.0, 0.5, -1.0, 1.0, -1.0 ].
+  You are also given some queries, where queries[j] = [Cj, Dj] represents the jth query where you must find the answer for Cj / Dj = ?.
 
-The input is: vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries , where equations.size() == values.size(), and the values are positive. This represents the equations. Return vector<double>.
+  Return the answers to all queries. If a single answer cannot be determined, return -1.0.
 
-According to the example above:
+  Note: The input is always valid. You may assume that evaluating the queries will not result in division by zero and that there is no contradiction.
 
-equations = [ ["a", "b"], ["b", "c"] ],
-values = [2.0, 3.0],
-queries = [ ["a", "c"], ["b", "a"], ["a", "e"], ["a", "a"], ["x", "x"] ]. 
-The input is always valid. You may assume that evaluating the queries will result in no division by zero and there is no contradiction.
+ 
+
+  Example 1:
+
+  Input: equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
+  Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
+  Explanation: 
+  Given: a / b = 2.0, b / c = 3.0
+  queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ?
+  return: [6.0, 0.5, -1.0, 1.0, -1.0 ]
+  Example 2:
+
+  Input: equations = [["a","b"],["b","c"],["bc","cd"]], values = [1.5,2.5,5.0], queries = [["a","c"],["c","b"],["bc","cd"],["cd","bc"]]
+  Output: [3.75000,0.40000,5.00000,0.20000]
+  Example 3:
+
+  Input: equations = [["a","b"]], values = [0.5], queries = [["a","b"],["b","a"],["a","c"],["x","y"]]
+  Output: [0.50000,2.00000,-1.00000,-1.00000]
+ 
+
+  Constraints:
+
+  1 <= equations.length <= 20
+  equations[i].length == 2
+  1 <= Ai.length, Bi.length <= 5
+  values.length == equations.length
+  0.0 < values[i] <= 20.0
+  1 <= queries.length <= 20
+  queries[i].length == 2
+  1 <= Cj.length, Dj.length <= 5
+  Ai, Bi, Cj, Dj consist of lower case English letters and digits.
 */
 
 #include "../common/common.h"
 
 using namespace std;
 
-// Solution based on union-find
+// DFS: do a fresh search for every query
+// time complexity: O(E + Q*E), where E is the number of equations, Q is the number of queries
 class Solution {
 public:
-  ~Solution() {
-    for(auto elem : _sets) {
-      delete elem.second;
+    vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
+        for(int i=0; i<equations.size(); ++i) {
+            _g[equations[i][0]].push_back({equations[i][1], values[i]});
+            _g[equations[i][1]].push_back({equations[i][0], 1/values[i]});
+        }
+        
+        vector<double> ans;
+        for(auto &v : queries) {
+            // DFS
+            unordered_set<string> visited;
+            if(_g.find(v[0])==_g.end() || _g.find(v[1])==_g.end())
+                ans.push_back(-1.0);
+            else{
+                double res = dfs(v[0], v[1], visited, 1.0);
+                ans.push_back(res);
+            }
+        }
+        
+        return ans;
     }
-  }
-  
-  vector<double> calcEquation(vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries) {
-    for(int i=0; i<equations.size(); ++i) {
-      string v1 = equations[i].first;
-      string v2 = equations[i].second;
-      double ratio = values[i];
-      bool found1 = (_sets.find(v1) != _sets.end());
-      bool found2 = (_sets.find(v2) != _sets.end());
-      if(!found1 && !found2) {
-	Node *n1 = new Node();
-	Node *n2 = new Node();
-	n2->_val = 1.0;
-	n1->_val = n2->_val * ratio;
-	n1->_parent = n2;
-	_sets[v1] = n1;
-	_sets[v2] = n2;
-      }
-      else if(!found1) {
-	Node *n1 = new Node();
-	Node *n2 = _sets[v2];
-	n1->_val = n2->_val * ratio;
-	n1->_parent = n2;
-	_sets[v1] = n1;
-      }
-      else if(!found2) {
-	Node *n1 = _sets[v1];
-	Node *n2 = new Node();
-	n2->_val = n1->_val / ratio;
-	n2->_parent = n1;
-	_sets[v2] = n2;
-      }
-      else {
-	makeUnion(_sets[v1], _sets[v2], ratio);
-      }
-    }
-
-    vector<double> res;
-    for(int i=0; i<queries.size(); ++i) {
-      auto it1 = _sets.find(queries[i].first);
-      Node *n1 = (it1!=_sets.end() ? it1->second : nullptr);
-      auto it2 = _sets.find(queries[i].second);
-      Node *n2 = (it2!=_sets.end() ? it2->second : nullptr);
-      if(!n1 || !n2 || findParent(n1)!=findParent(n2)) {
-	res.push_back(-1.0);
-      }
-      else {
-	res.push_back(n1->_val / n2->_val);
-      }
-    }
-    return res;
-  }
-
-private:
-  struct Node {  // This can be easily extended
-    Node() : _parent(this),
-	     _val(0.0)
-    {
-      // Dummy
-    }
-    Node *_parent;
-    double _val;
-  };
-
-  Node *findParent(Node *n) {
-    if(n->_parent == n)
-      return n;
-    n->_parent = findParent(n->_parent);  // path compression on the fly
-    return n->_parent;
-  }
-
-  void makeUnion(Node *n1, Node *n2, /*ratio between two sets*/double setRatio) {
-    Node *p1 = findParent(n1);
-    Node *p2 = findParent(n2);
-    if(p1 != p2) {
-      // Merge set1 into set2 (i.e., p2 being the overall root)
-      // -- (val1*x)/(val2)=setRatio ==> x = (val2*setRatio)/(val1)
-      // -- Actually, may need to merge set2 into set1 if val1 is 0!!!
-      double x = (n2->_val * setRatio) / (n1->_val);
-      // now update all elements in set1
-      for(auto elem : _sets) {  // should this be heavy duty, we may maintain another container for set-->elem mapping
-	if(findParent(elem.second) == p1) {
-	  elem.second->_val *= x;
-	}
-      }
-      p1->_parent = p2;
-    }
-  }
-
-  unordered_map<string, Node*> _sets;
     
+private:
+    unordered_map<string, vector<pair<string,double>>> _g;  // graph
+    double dfs(const string &cur, const string &dest, unordered_set<string> &visited, double val) {
+        if(cur == dest)
+            return val;
+        
+        visited.insert(cur);
+        for(auto &edge : _g[cur]) {
+            if(visited.find(edge.first) != visited.end())
+                continue;
+            double res = dfs(edge.first, dest, visited, val*edge.second);
+            if(res != -1.0)
+                return res;
+        }
+        
+        return -1.0;  // not found
+    }
 };
 
-// A better DFS solution -- actually, we only need to pass "ratio" instead of the absolute inferred variable value in the DFS search function
-class Solution3 {
+
+// DFS: traversal only once to find connected components, and then assign value to each variable
+// time complexity: O(E + Q), where E is the number of equations, Q is the number of queries
+class Solution {
 public:
-  vector<double> calcEquation(vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries) {
-    // 1. build graph
-    for(int i=0; i<equations.size(); ++i) {
-      string v1 = equations[i].first;
-      string v2 = equations[i].second;
-      double ratio = values[i];
-      m_graph[v1].insert(make_pair(v2, ratio));
-      if(ratio != 0)
-	m_graph[v2].insert(make_pair(v1, 1/ratio));
-    }
+    vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
+        for(int i=0; i<equations.size(); ++i) {
+            _g[equations[i][0]].push_back({equations[i][1], values[i]});
+            _g[equations[i][1]].push_back({equations[i][0], 1/values[i]});
+        }
 
-    // 2. DFS search for each query
-    vector<double> res;
-    for(int i=0; i<queries.size(); ++i) {
-      string from = queries[i].first;
-      string target = queries[i].second;
-      if(m_graph.find(from) == m_graph.end()) {
-	res.push_back(-1.0);
-	continue;
-      }
-
-      if(from == target) {
-	res.push_back(1.0);
-	continue;
-      }
-      
-      auto it = m_graph[from].begin();
-      visited.clear();
-      visited.insert(from);
-      auto ret = search(from, target, 1.0);  // starting ratio is 1.0 as x/x=1.0
-      if(ret.first)  // found path
-	res.push_back(ret.second);
-      else
-	res.push_back(-1.0);
+        // DFS to identify connected components and assign values
+        for(auto &entry : _g) {
+            if(_vals.find(entry.first) != _vals.end())  // already visited and assigned value
+                continue;
+            string cur = entry.first;
+            dfs(cur, cur, 1.0);
+        }
+        
+        
+        vector<double> ans;
+        for(auto &v : queries) {
+            if(_g.find(v[0])==_g.end() || _g.find(v[1])==_g.end() || _parent[v[0]]!=_parent[v[1]])
+                ans.push_back(-1.0);
+            else{
+                ans.push_back(_vals[v[0]]/_vals[v[1]]);
+            }
+        }
+        
+        return ans;
     }
     
-    return res;    
-  }
-
-  // DFS search
-  // -- recursively propagate ratio only
-  // -- return True if the target is found
-  pair<bool,double> search(const std::string &from, const std::string &target, double ratio) {
-    for(auto neig : m_graph[from]) {
-      if(visited.find(neig.first) != visited.end())
-	continue;
-      visited.insert(neig.first);
-
-      if(neig.first == target) {
-	return make_pair(true, ratio*neig.second);
-      }
-      
-      auto ret = search(neig.first, target, ratio*neig.second);
-      if(ret.first)
-	return make_pair(true, ret.second);
-    }
-
-    return make_pair(false, 0.0);
-  }
-
-
 private:
-  unordered_map<string, map<string,double>> m_graph;  // this is directed graph
-  unordered_set<string> visited;
+    unordered_map<string, vector<pair<string,double>>> _g;  // graph
+    unordered_map<string, string> _parent;  // variable --> representative node of each connected component
+    unordered_map<string, double> _vals;    // assigned value for each variable, also used as visited flag
+    void dfs(const string &cur, const string &rep, double val) {
+        _parent[cur] = rep;
+        _vals[cur] = val;
+        for(auto &edge : _g[cur]) {
+            if(_vals.find(edge.first) != _vals.end())
+                continue;
+            dfs(edge.first, rep, val/edge.second);
+        }
+    }
+    
 };
 
-class Solution2 {
+
+// union-find
+// time complexity: O(E^2+Q), i.e., we need to update variable value at each merge
+class Solution {
 public:
-  vector<double> calcEquation(vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries) {
-    // 1. build graph
-    for(int i=0; i<equations.size(); ++i) {
-      string v1 = equations[i].first;
-      string v2 = equations[i].second;
-      double ratio = values[i];
-      m_graph[v1].insert(make_pair(v2, ratio));
-      if(ratio != 0)
-	m_graph[v2].insert(make_pair(v1, 1/ratio));
-    }
-
-    // 2. DFS search for each query
-    vector<double> res;
-    for(int i=0; i<queries.size(); ++i) {
-      string from = queries[i].first;
-      string target = queries[i].second;
-      if(m_graph.find(from) == m_graph.end()) {
-	res.push_back(-1.0);
-	continue;
-      }
-
-      if(from == target) {
-	res.push_back(1.0);
-	continue;
-      }
-      
-      auto it = m_graph[from].begin();
-      double fromVal = it->second;  // assume a value for the query starting node
-      double targetVal = 0.0;
-      visited.clear();
-      visited.insert(from);
-      if(search(from, fromVal, target, targetVal))  // found path
-	res.push_back(fromVal/targetVal);
-      else
-	res.push_back(-1.0);
+    vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
+        // union-find
+        for(int i=0; i<equations.size(); ++i) {
+            if(_parent.find(equations[i][0]) == _parent.end())
+                makeNew(equations[i][0]);
+            if(_parent.find(equations[i][1]) == _parent.end())
+                makeNew(equations[i][1]);
+            merge(equations[i][0], equations[i][1], values[i]);
+        }
+        
+        
+        vector<double> ans;
+        for(auto &v : queries) {
+            if(_parent.find(v[0])==_parent.end() || _parent.find(v[1])==_parent.end() || getParent(v[0])!=getParent(v[1]))
+                ans.push_back(-1.0);
+            else {
+                ans.push_back(_val[v[0]]/_val[v[1]]);
+            }
+        }
+        
+        return ans;
     }
     
-    return res;    
-  }
-
-  // DFS search -- return True if the target is found
-  bool search(const std::string &from, double fromVal, const std::string &target, double &targetVal) {
-    for(auto neig : m_graph[from]) {
-      if(visited.find(neig.first) != visited.end())
-	continue;
-      visited.insert(neig.first);
-      if(neig.first == target) {
-	targetVal = fromVal / neig.second;
-	return true;
-      }
-
-      if(search(neig.first, fromVal/neig.second, target, targetVal))
-	 return true;
-    }
-
-    return false;
-  }
-
-
 private:
-  unordered_map<string, map<string,double>> m_graph;  // this is directed graph
-  unordered_set<string> visited;
+    unordered_map<string,string> _parent;
+    unordered_map<string,double> _val;
+    
+    void makeNew(const string &var) {
+        _parent[var] = var;
+        _val[var] = 1.0;
+    }
+    
+    string getParent(const string &var) {
+        if(_parent[var] != var)
+            _parent[var] = getParent(_parent[var]);  // path compression
+        return _parent[var];
+    }
+    
+    void merge(const string &v1, const string &v2, double ratio/*ratio=v1/v2*/) {
+        const string p1 = getParent(v1);
+        const string p2 = getParent(v2);
+        if(p1 == p2)
+            return;
+        double factor = ratio*_val[v2]/_val[v1];  // this is highly important
+        for(auto &entry : _val) {
+            if(getParent(entry.first) == p1) {
+                _val[entry.first] *= factor;
+            }
+        }
+        _parent[p2] = p1;
+    }
 };
 
 
-// This DOES NOT work as the query nodes may come from differen clusters!
-class SolutionWrong {
+// DFS: ref impl from HuaHua
+// time complexity: O(E+Q*E)
+class Solution {
 public:
-  vector<double> calcEquation(vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries) {
-
-    // 1. build graph
-    for(int i=0; i<equations.size(); ++i) {
-      string v1 = equations[i].first;
-      string v2 = equations[i].second;
-      m_graph[v1].insert(v2);
-      m_graph[v2].insert(v1);
-      m_equations[v1+"/"+v2] = values[i];
+    vector<double> calcEquation(vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries) {
+        // g[A][B] = k -> A / B = k
+        unordered_map<string, unordered_map<string, double>> g;        
+        for (int i = 0; i < equations.size(); ++i) {
+            const string& A = equations[i].first;
+            const string& B = equations[i].second;
+            const double k = values[i];
+            g[A][B] = k;
+            g[B][A] = 1.0 / k;
+        }
+        
+        vector<double> ans;
+        for (const auto& pair : queries) {
+            const string& X = pair.first;
+            const string& Y = pair.second;
+            if (!g.count(X) || !g.count(Y)) {
+                ans.push_back(-1.0);
+                continue;
+            }
+            unordered_set<string> visited;            
+            ans.push_back(divide(X, Y, g, visited));
+        }
+        return ans;
     }
-
-    // 2. graph traversal
-    for(auto it=m_graph.begin(); it!=m_graph.end(); ++it) {
-      if(m_vars.find(it->first) != m_vars.end())
-	continue;
-      bfs(it->first);
-    }
-
-    // 3. compute results
-    vector<double> res;
-    for(int i=0; i<queries.size(); ++i) {
-      auto it1 = m_vars.find(queries[i].first);
-      auto it2 = m_vars.find(queries[i].second);
-      if(it1==m_vars.end() || it2==m_vars.end())
-	res.push_back(-1.0);
-      else
-	res.push_back(it1->second / it2->second);
-    }
-    
-    return res;    
-  }
-
-  void bfs(string var) {
-    queue<string> q;
-    q.push(var);
-    while(!q.empty()) {
-      string nd = q.front();
-      q.pop();
-      for(auto neig : m_graph[nd]) {
-	if(m_vars.find(neig) == m_vars.end()) {
-	  inferVal(nd, neig);
-	  q.push(neig);
-	}
-      }
-    }
-  }
-
-  void inferVal(string v1, string v2) {
-    string eq = v1 + "/" + v2;
-    if(m_equations.find(eq) == m_equations.end()) {
-      swap(v1, v2);
-      eq = v1 + "/" + v2;
-    }
-    double val = m_equations[eq];
-    bool found1 = (m_vars.find(v1)!=m_vars.end());
-    bool found2 = (m_vars.find(v2)!=m_vars.end());
-    if(!found1 && !found2) {
-      m_vars[v2] = 1.0;
-      m_vars[v1] = 1.0 * val;
-    }
-    else if(found1 && !found2) {
-      m_vars[v2] = m_vars[v1] / val;
-    }
-    else if(!found1 && found2) {
-      m_vars[v1] = m_vars[v2] * val;
-    }
-    else {
-      // no need to recompute as the input has no contradiction
-    }
-  }
-
 private:
-  map<string, set<string>> m_graph;
-  map<string, double> m_equations;
-  map<string, double> m_vars;
+    // get result of A / B
+    double divide(const string& A, const string& B, 
+                  unordered_map<string, unordered_map<string, double>>& g,
+                  unordered_set<string>& visited) {        
+        if (A == B) return 1.0;
+        visited.insert(A);
+        for (const auto& pair : g[A]) {
+            const string& C = pair.first;
+            if (visited.count(C)) continue;
+            double d = divide(C, B, g, visited); // d = C / B
+            // A / B = C / B * A / C
+            if (d > 0) return d * g[A][C];
+        }        
+        return -1.0;
+    }
 };
 
-int main()
-{
-  vector<pair<string, string>> equations = { {"a", "b"}, {"c", "d"}, {"b", "c"} };
-  vector<double> values = {2.0, 3.0, 7.0};
-  vector<pair<string, string>> queries = { {"a", "d"} /*{"a", "c"}, {"b", "a"}, {"a", "e"}, {"a", "a"}, {"x", "x"}*/ };
 
-  Solution sol;
-  auto res = sol.calcEquation(equations, values, queries);
-  printVector(res);
-
-  return 0;
-}
+// union-find: ref impl from HuaHua
+// time complexity: O(E+Q)
+class Solution {
+public:
+    vector<double> calcEquation(const vector<pair<string, string>>& equations, vector<double>& values, const vector<pair<string, string>>& queries) {
+        // parents["A"] = {"B", 2.0} -> A = 2.0 * B
+        // parents["B"] = {"C", 3.0} -> B = 3.0 * C
+        unordered_map<string, pair<string, double>> parents;
+ 
+        for (int i = 0; i < equations.size(); ++i) {
+            const string& A = equations[i].first;
+            const string& B = equations[i].second;
+            const double k = values[i];
+            // Neighter is in the forrest
+            if (!parents.count(A) && !parents.count(B)) {
+                parents[A] = {B, k};
+                parents[B] = {B, 1.0};
+            } else if (!parents.count(A)) {
+                parents[A] = {B, k};
+            } else if (!parents.count(B)) {
+                parents[B] = {A, 1.0 / k};
+            } else {
+                auto& rA = find(A, parents);
+                auto& rB = find(B, parents);      
+                parents[rA.first] = {rB.first, k / rA.second * rB.second};
+            }    
+        }
+ 
+        vector<double> ans;
+        for (const auto& pair : queries) {
+            const string& X = pair.first;
+            const string& Y = pair.second;
+            if (!parents.count(X) || !parents.count(Y)) {
+                ans.push_back(-1.0);
+                continue;
+            }
+            auto& rX = find(X, parents); // {rX, X / rX}
+            auto& rY = find(Y, parents); // {rY, Y / rY}
+            if (rX.first != rY.first)
+                ans.push_back(-1.0);
+            else // X / Y = (X / rX / (Y / rY))
+                ans.push_back(rX.second / rY.second);
+        }
+        return ans;
+    }
+private:
+    pair<string, double>& find(const string& C, unordered_map<string, pair<string, double>>& parents) {
+        if (C != parents[C].first) {
+            const auto& p = find(parents[C].first, parents);
+            parents[C].first = p.first;
+            parents[C].second *= p.second;
+        }
+        return parents[C];
+    }
+};
