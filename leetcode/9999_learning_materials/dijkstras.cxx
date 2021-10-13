@@ -4,6 +4,38 @@
 -- This version can handle edge with negative weight
 */
 
+// HuaHua's implementation using sed::set
+// -- this is the exact implementation of "Introduction to Algorithm"
+// time complexity: O((V+E)lgV)
+vector<int> dijkstra(const vector<vector<pair<int, int>>> &g/*graph*/, int s/*source*/) {
+    vector<int> dist(n, INT_MAX / 2);
+    set<pair<int, int>> q; // <dist, node>
+    vector<set<pair<int, int>>::const_iterator> its(n);
+    dist[s] = 0;
+    for (int i = 0; i < n; ++i)
+        its[i] = q.emplace(dist[i], i).first;
+    while (!q.empty()) {
+        auto it = cbegin(q);
+        int d = it->first;
+        int u = it->second;
+        q.erase(it);        
+        if (d > t)
+            break; // pruning
+        for (const auto& p : g[u]) {
+            int v = p.first;
+            int w = p.second;
+            if (dist[v] <= d + w)
+                continue;
+            // Decrease key
+            q.erase(its[v]);
+            its[v] = q.emplace(dist[v] = d + w, v).first;
+        }
+    }
+
+    return dist;
+}
+
+
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL
 #include<bits/stdc++.h>
@@ -66,7 +98,7 @@ void Graph::shortestPath(int src)
 
 	/* Looping till priority queue becomes empty (or all
 	distances are not finalized) */
-	while (!pq.empty())
+	while (!pq.empty())  // Chun: use this stop condiditon, it can handle negative edge weights
 	{
 		// The first vertex in pair is the minimum distance
 		// vertex, extract it from priority queue.
