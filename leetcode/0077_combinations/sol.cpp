@@ -30,7 +30,7 @@ Constraints:
 */
 
 // DFS with pruning
-// time complexity: O(C(n,k))
+// time complexity: O(k*C(n,k))
 // space complexity: O(k)
 class Solution {
 public:

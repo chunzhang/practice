@@ -23,7 +23,7 @@ Constraints:
 
 
 // DFS with pruning
-// time complexity: O(2^N)
+// time complexity: O(N*2^N)
 // space complexity: O(N)
 class Solution {
 public:
@@ -89,7 +89,7 @@ private:
 
 
 // cascading: for duplicated numbers, only need to expand the second half
-// time complexity: O(2^N)
+// time complexity: O(N*2^N)
 class Solution {
 public:
     vector<vector<int>> subsetsWithDup(vector<int>& nums) {

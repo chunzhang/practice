@@ -35,7 +35,7 @@
 */
 
 // DFS with pruning
-// time complexity: O(2^N), i.e., each element can either be selected or not
+// time complexity: O(N*2^N), i.e., each element can either be selected or not
 // space complexity: O(N)
 class Solution {
 public:

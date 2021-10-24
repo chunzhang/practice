@@ -51,7 +51,7 @@
 
 
 // DFS with pruning
-// time complexity: O(C(9,k))
+// time complexity: O(k*C(9,k))
 // space complexity: O(k)
 class Solution {
 public:

@@ -43,7 +43,7 @@ All elements of candidates are distinct.
 
 
 // DFS with pruning
-// time complexity: O(N^K), where K=target/min{candidates}, i.e., max possible recursion depth
+// time complexity: O(K*N^K), where K=target/min{candidates}, i.e., max possible recursion depth
 // space complexity: O(K)
 class Solution {
 public:

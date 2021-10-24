@@ -29,7 +29,7 @@ digits[i] is a digit in the range ['2', '9'].
 
 
 // DFS/backtracking
-// time complexity: O(4^N), wehre N is the number of digits; totally 4^N combinations
+// time complexity: O(N*4^N), wehre N is the number of digits; totally 4^N combinations
 // space complexity: O(N), which is the recursion depth
 class Solution {
 public:
