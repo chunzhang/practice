@@ -39,6 +39,30 @@ The number of nodes in the tree is in the range [1, 3 * 104].
  * };
  */
 
+
+// most recent impl
+class Solution {
+public:
+    int maxPathSum(TreeNode* root) {
+        int ans = INT_MIN;
+        dfs(root, ans);
+        return ans;
+    }
+    
+private:
+    // return max sum from current node and downwards, i.e., uni-direction
+    int dfs(TreeNode *node, int &ans) {
+        if(!node)
+            return 0;
+        
+        int left = dfs(node->left, ans);
+        int right = dfs(node->right, ans);
+        int sum = node->val + (left>0?left:0) + (right>0?right:0);
+        ans = max(ans, sum);
+        return max(node->val, node->val+max(left,right));
+    }
+};
+
 // O(N) algorithm
 class Solution {
 public:
