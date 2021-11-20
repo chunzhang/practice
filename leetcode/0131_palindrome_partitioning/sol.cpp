@@ -23,6 +23,7 @@ s contains only lowercase English letters.
 */
 
 // DFS solution
+// time complexity: O(N*2^N), i.e., worst case when string contains same characters
 class Solution {
 public:
     vector<vector<string>> partition(string s) {
