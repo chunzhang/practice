@@ -43,7 +43,7 @@ num consists of only digits.
 
 
 // DFS
-// time complexity: O(4^N), i.e., each digit can be inserted with '+', '-', '*', or no operator
+// time complexity: O(N^2*4^N), i.e., each digit can be inserted with '+', '-', '*', or no operator, copy all intermediate string takes O(N) at recursion depth N ==> O(N^2)
 class Solution {
 public:
     vector<string> addOperators(string num, int target) {
@@ -97,6 +97,7 @@ private:
 
 
 // Better DFS impl
+// time complexity: O(N^2*4^N)
 class Solution {
 public:
     vector<string> addOperators(string num, int target) {
@@ -126,6 +127,55 @@ private:
                 dfs(num, target, i+1, curNum, val+curNum, exp+"+"+curNumStr, ans);
                 dfs(num, target, i+1, -curNum/*minus ==> add an negative number*/, val-curNum, exp+"-"+curNumStr, ans);
                 dfs(num, target, i+1, prevNum*curNum, val-prevNum+prevNum*curNum, exp+"*"+curNumStr, ans);
+            }
+        }
+    }
+};
+
+
+// Most optimal solution -- avoids string copy
+// time complexity: O(N*4^N)
+class Solution {
+public:
+    vector<string> addOperators(string num, int target) {
+        vector<string> ans;
+        string exp(num.size()*2-1, 'X');  // at most N-1 operands can be inserted
+        dfs(num, target, 0, 0, 0, exp, 0, ans);
+        return ans;
+    }
+    
+private:
+    void dfs(const string &num, int target, int curIdx, long prevNum/*operand 1*/, long val/*calculated val of current expression*/, string &exp, int len/*effective length of current exp*/, vector<string> &ans) {
+        if(curIdx == num.size()) {
+            if(val == target) {
+                ans.push_back(exp.substr(0, len));
+            }
+            return;
+        }
+
+        int oldLen = len;
+        if(curIdx != 0)
+            ++len;  // for inserting the operand
+
+        long curNum = 0;
+        for(int i=curIdx; i<num.size(); ++i) {  // try to find the second operand
+            if(num[curIdx]=='0' && i>curIdx)  // avoid leading zero
+                break;
+            
+            curNum = curNum*10 + num[i] - '0';
+            exp[len++] = num[i];
+            if(curIdx == 0) {  // this is first operand
+                dfs(num, target, i+1, curNum, curNum, exp, len, ans);
+            }
+            else {  // this is second operand
+                exp[oldLen] = '+'; 
+                dfs(num, target, i+1, curNum, val+curNum, exp, len, ans);
+                
+                exp[oldLen] = '-';
+                dfs(num, target, i+1, -curNum/*minus ==> add an negative number*/, val-curNum, exp, len, ans);
+                
+                exp[oldLen] = '*';
+                dfs(num, target, i+1, prevNum*curNum, val-prevNum+prevNum*curNum, exp, len, ans);
             }
         }
     }
