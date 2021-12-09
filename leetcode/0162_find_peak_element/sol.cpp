@@ -48,6 +48,27 @@ public:
 };
 
 
+// binary search -- a different impl
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        const int N = nums.size();
+        int lo = 0;
+        int hi = N - 1;
+        while(lo <= hi) {
+            int mid = lo + (hi-lo)/2;
+            if(mid<N-1 && nums[mid]<nums[mid+1])     // on rising path
+                lo = mid + 1;
+            else if(mid>0 && nums[mid]<nums[mid-1])  // on falling path
+                hi = mid - 1;
+            else
+                return mid;
+        }
+        
+        return -1;  // should not reach here
+    }
+};
+
 // O(N) time complexity, but intersting
 // detect first element that drops -- based on the fact that nums[-1]=-inf
 class Solution {
