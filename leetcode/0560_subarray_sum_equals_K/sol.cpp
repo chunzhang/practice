@@ -21,17 +21,18 @@
 */
 
 // O(N): prefix and count mapping
+// Key idea: satisfied subarray ==> psum(j)-psum(i)=k ==> psum(i)=psum(j)-k
 class Solution {
 public:
     int subarraySum(vector<int>& nums, int k) {
         int psum = 0;  // prefix sum
-        unordered_map<int,int> count;  // psum --> count mapping
+        unordered_map<int,int> count;  // psum --> count
         int ans = 0;
         for(int num: nums) {
             psum += num;
-            if(psum == k)  // full path, i.e., starting from nums[0]
+            if(psum == k)
                 ++ans;
-            ans += count[psum-k];  // partial path, i.e., starting from nums[0], nums[1], etc.
+            ans += count[psum-k];
             ++count[psum];
         }
         
@@ -43,18 +44,18 @@ public:
 class Solution {
 public:
     int subarraySum(vector<int>& nums, int k) {
-        int count = 0;
-        int csum = 0;
-        map<int, int> csumCount; // # times this csum has been seen so far
-        csumCount[0] = 1;  // in the case nums[0]==k
-    
-        for(int i=0; i<nums.size(); ++i){
-            csum += nums[i];
-            count += csumCount[csum-k];
-            csumCount[csum]++;
+        int psum = 0;
+        unordered_map<int,int> count;
+        count[0] = 1;
+        int ans = 0;
+
+        for(int num : nums) {
+            psum += num;
+            ans += count[psum-k];  // since count[0]=1, this accounts for the case where psum==k
+            ++count[psum];
         }
 
-        return count;
+        return ans;
     }
 };
 
