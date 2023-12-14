@@ -13,10 +13,6 @@ public:
     void callback(int value) {
         cout << "Client1::callback(): value=" << value << endl;
     }
-
-    void callback2() {
-        cout << "Client1::callback2()" << endl;
-    }
 };
 
 class Event
