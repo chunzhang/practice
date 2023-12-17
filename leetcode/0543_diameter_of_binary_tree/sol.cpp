@@ -1,4 +1,6 @@
 /*
+  Facebook/Amazon/Adobe
+
   Given the root of a binary tree, return the length of the diameter of the tree.
 
   The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
@@ -41,22 +43,46 @@
 class Solution {
 public:
     int diameterOfBinaryTree(TreeNode* root) {
-        _max = INT_MIN;
-        longestPath(root);
-        return _max;  
+        _ans = INT_MIN;
+        helper(root);
+        return _ans;
     }
+
+private:
+    int _ans;
     
+    // helper function that returns max depth of the tree
+    // use global var to keep track of max diameter (i.e., it must go throuh at least one node as root)
+    int helper(TreeNode *root) {
+        int left = root->left ? helper(root->left) : 0;
+        int right = root->right ? helper(root->right) : 0;
+
+        _ans = max(_ans, left+right);  // diameter of the path going through current root
+        return max(left,right)+1;
+    }
+};
+
+// same idea, but uses more memory since it does not track global max
+class Solution {
+public:
+    int diameterOfBinaryTree(TreeNode* root) {
+        return helper(root).first;
+    }
+
 private:
     int _max;
-    // return number of nodes of longest path from node and downwards
-    // also update global diameter max
-    int longestPath(TreeNode *node) {
-        if(!node)
-            return 0;
-        int l = longestPath(node->left);
-        int r = longestPath(node->right);
-        _max = max(_max, l+r);  // path-length = #nodes - 1
-        return max(l,r)+1;
+    
+    // helper function that returns max diameter and depth of the tree
+    pair<int,int> helper(TreeNode *root) {
+        if(!root)
+            return {0,0};
+
+        auto left = helper(root->left);
+        auto right = helper(root->right);
+
+        int diameter = max(max(left.first,right.first), left.second+right.second);
+        int depth = max(left.second,right.second) + 1;
+        return {diameter, depth};
     }
 };
 

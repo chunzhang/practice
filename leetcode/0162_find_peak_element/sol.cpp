@@ -48,6 +48,29 @@ public:
 };
 
 
+// my different impl of binary search
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        // binary search in [lo, hi)
+        int lo = 0;
+        int hi = nums.size();
+
+        while(lo<hi) {
+            int mid = lo + (hi-lo)/2;
+            if((mid==0||nums[mid]>nums[mid-1]) && (mid==nums.size()-1||nums[mid]>nums[mid+1]))  // find peak
+                return mid;
+            
+            if(mid!=0 && nums[mid]<nums[mid-1])  // mid is on falling path ==> peak on its left
+                hi = mid;
+            else
+                lo = mid+1;
+        }
+
+        return lo;
+    }
+};
+
 // binary search -- a different impl
 class Solution {
 public:

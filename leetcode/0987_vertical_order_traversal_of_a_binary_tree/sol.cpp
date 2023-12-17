@@ -1,4 +1,6 @@
 /*
+  /Facebook/Adobe/Amazon
+
   Given the root of a binary tree, calculate the vertical order traversal of the binary tree.
 
   For each node at position (row, col), its left and right children will be at positions (row + 1, col - 1) and (row + 1, col + 1) respectively. The root of the tree is at (0, 0).
@@ -102,44 +104,34 @@ private:
 class Solution {
 public:
     vector<vector<int>> verticalTraversal(TreeNode* root) {
-        unordered_map<int, vector<pair<int,int>>> cols;  // column --> (level,value) mapping
-        int minCol = 0;
-        int maxCol = 0;
-        preorder(root, 0, 0, cols, minCol, maxCol);
-        
-        // construct results
         vector<vector<int>> ans;
-        auto myComp = [](const pair<int,int> &p1, const pair<int,int> &p2) {  // sort by level first, and then by value
-            if(p1.first!=p2.first)
-                return p1.first < p2.first;
-            else
-                return p1.second < p2.second;
-            };
-        for(int c=minCol; c<=maxCol; ++c) {  // each iteration is O((N/k)*lg(N/k)) time complexity, i.e., bounded by sorting
-            auto it = cols.find(c);
-            if(it == cols.end())
-                continue;
-            auto &v = it->second;
-            sort(v.begin(), v.end(), myComp);
-            vector<int> vCol;
-            for(auto &elem : v)
-                vCol.push_back(elem.second);
-            ans.push_back(vCol);
+        helper(root, 0, 0);
+        for(int i=_minCol; i<=_maxCol; ++i) {  // there cannot be any jump in colmn index
+            auto &v = _m[i];
+            sort(v.begin(), v.end(), [](const pair<int,int> &p1, const pair<int,int> &p2) {
+                return p1.first<p2.first || (p1.first==p2.first && p1.second<p2.second);
+            });
+            ans.emplace_back(v.size(), 0);
+            for(int i=0; i<ans.back().size(); ++i)
+                ans.back()[i] = v[i].second;
         }
-        
+
         return ans;
     }
-    
+
 private:
-    // use pre-order traversal to collect results
-    void preorder(TreeNode *node, int lv, int col, unordered_map<int, vector<pair<int,int>>> &cols, int &minCol, int &maxCol) {
-        cols[col].push_back({lv,node->val});
-        minCol = min(minCol, col);
-        maxCol = max(maxCol, col);
-        if(node->left)
-            preorder(node->left, lv+1, col-1, cols, minCol, maxCol);
-        if(node->right)
-            preorder(node->right, lv+1, col+1, cols, minCol, maxCol);
+    unordered_map<int,vector<pair<int,int>>> _m;  // col --> (row,val) mapping
+    int _minCol = INT_MAX;
+    int _maxCol = INT_MIN;
+    void helper(TreeNode *root, int row, int col) {
+        _m[col].push_back({row,root->val});
+        _minCol = min(_minCol, col);
+        _maxCol = max(_maxCol, col);
+
+        if(root->left)
+            helper(root->left, row+1, col-1);
+        if(root->right)
+            helper(root->right, row+1, col+1);
     }
 };
 

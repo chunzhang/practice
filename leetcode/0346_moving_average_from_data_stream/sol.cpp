@@ -19,34 +19,29 @@
 
 using namespace std;
 
-// This solution keeps a long long int for current summation; in addition, it uses an array in cyclic manner as queue
+// Uses an array in cyclic manner to keep track of data elements in current window
 class MovingAverage {
 public:
-  /** Initialize your data structure here. */
-  MovingAverage(int size) : _data(size,0),
-			    _tail(0),
-			    _cap(size),
-			    _sz(0),
-			    _sum(0)
-  {
-    // Dummy
-  }
+    MovingAverage(int size) : _window(size), _data(size,0), _size(0), _sum(0), _head(0){
+        
+    }
     
-  double next(int val) {
-    _sum = _sum - _data[_tail] + val;
-    _data[_tail++] = val;
-    _tail %= _cap;
-    if(++_sz > _cap)
-      _sz = _cap;
-    return (double)_sum / _sz;
-  }
+    double next(int val) {
+        if(_size < _window)
+            ++_size;
+
+        _sum = _sum - _data[_head] + val;
+        _data[_head] = val;  // after the element is removed, original head becomes the tail
+        _head = (_head+1)%_window;
+        return (double)_sum/_size;
+    }
 
 private:
-  vector<int> _data;  // used as queue
-  int _tail;  // tail of the queue
-  int _cap;
-  int _sz;
-  long long int _sum;  // to avoid integer overflow  
+    const int _window;
+    int _size;
+    int _sum;
+    vector<int> _data;  // used in a cyclic manner
+    int _head;  // this element will be moved out of the window when new element is added
 };
 
 // This solution keeps a double of current average -- requires a multiplication to compute next average

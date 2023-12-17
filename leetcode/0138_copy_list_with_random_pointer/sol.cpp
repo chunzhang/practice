@@ -87,6 +87,41 @@ private:
 };
 
 
+// clean code by iterating the linked list from first to last
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        unordered_map<Node*,Node*> nodeMap;   // old --> new node mapping
+        
+        // iterate through old linked list (BFS)
+        Node *node = head;
+        while(node) {
+            Node *newNode = findOrCreateNode(nodeMap, node);
+            newNode->next = findOrCreateNode(nodeMap, node->next);
+            newNode->random = findOrCreateNode(nodeMap, node->random);
+            node = node->next;
+        }
+
+        return findOrCreateNode(nodeMap, head);
+    }
+
+private:
+    Node* findOrCreateNode(unordered_map<Node*,Node*> &nodeMap, Node *node) {
+        if(!node)
+            return nullptr;
+
+        auto it = nodeMap.find(node);
+        if(it != nodeMap.end())
+            return it->second;
+
+        Node *newNode = new Node(node->val);
+        nodeMap[node] = newNode;
+
+        return newNode;
+    }
+};
+
+
 // BFS w/o using queue
 class Solution {
 public:
