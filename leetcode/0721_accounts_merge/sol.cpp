@@ -1,4 +1,6 @@
 /*
+  Facebook/Google/Amazon
+
   Given a list of accounts where each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the account.
 
   Now, we would like to merge these accounts. Two accounts definitely belong to the same person if there is some common email to both accounts. Note that even if two accounts have the same name, they may belong to different people as people could have the same name. A person can have any number of accounts initially, but all of their accounts definitely have the same name.
@@ -128,5 +130,50 @@ public:
         }
  
         return ans;
+    }
+};
+
+
+// DFS to find all connected components
+// Further enhancement: build email-->nodeID mapping, i.e., use int as node
+class Solution {
+public:
+    vector<vector<string>> accountsMerge(vector<vector<string>>& accounts) {
+        // DFS to find connected components
+
+        // 1. build graph (i.e., emails belonging to same account are connected)
+        unordered_map<string, unordered_set<string>> g;
+        for(auto &acc : accounts) {
+            //g[acc[1]];
+            for(int j=2; j<acc.size(); ++j) {
+                g[acc[1]].insert(acc[j]);
+                g[acc[j]].insert(acc[1]);
+            }
+        }
+
+        // 2. DFS
+        unordered_set<string> visited;
+        vector<vector<string>> ans;
+        for(auto &acc : accounts) {
+            if(visited.count(acc[1]))
+                continue;
+            unordered_set<string> emails;
+            dfs(g, visited, acc[1], emails);
+            ans.push_back(vector<string>(1,acc[0]));
+            ans.back().insert(ans.back().end(), emails.begin(), emails.end());
+            sort(ans.back().begin()+1, ans.back().end());
+        }
+
+        return ans;
+    }
+
+private:
+    void dfs(unordered_map<string, unordered_set<string>> &g, unordered_set<string> &visited,  const string &cur, unordered_set<string> &res) {
+        visited.insert(cur);
+        res.insert(cur);
+        for(const string &next : g[cur]) {
+            if(!visited.count(next))
+                dfs(g,visited,next,res);
+        }
     }
 };
