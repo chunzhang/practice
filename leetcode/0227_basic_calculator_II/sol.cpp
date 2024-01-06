@@ -86,7 +86,7 @@ private:
 };
 
 
-// my other solution
+// my other solution: first handle '*' and '/', then handle '+' and '-'
 class Solution {
 public:
     int calculate(string s) {
